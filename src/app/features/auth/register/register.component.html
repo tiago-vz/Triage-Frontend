@@ -1,0 +1,76 @@
+<div class="auth-shell">
+  <div class="auth-panel">
+
+    <div class="auth-brand">
+      <span class="brand-mark">T</span>
+      <div>
+        <h1>Triagre</h1>
+        <p>Sistema de Gestión Académica</p>
+      </div>
+    </div>
+
+    <h2 class="auth-title">Crear cuenta</h2>
+
+    <div *ngIf="error()" class="alert-error">{{ error() }}</div>
+    <div *ngIf="success()" class="alert-success">{{ success() }}</div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+      <div class="field">
+        <label for="nombre">Nombre completo</label>
+        <input id="nombre" type="text" formControlName="nombre"
+          placeholder="Tu nombre"
+          [class.invalid]="nombre.invalid && nombre.touched" />
+        <span class="field-error" *ngIf="nombre.hasError('required') && nombre.touched">
+          El nombre es obligatorio
+        </span>
+        <span class="field-error" *ngIf="nombre.hasError('minlength') && nombre.touched">
+          Mínimo 3 caracteres
+        </span>
+      </div>
+
+      <div class="field">
+        <label for="email">Correo institucional</label>
+        <input id="email" type="email" formControlName="email"
+          placeholder="nombre@estudiante.triagre.com"
+          [class.invalid]="email.invalid && email.touched" />
+        <span class="field-error" *ngIf="email.hasError('required') && email.touched">
+          El correo es obligatorio
+        </span>
+        <span class="field-error" *ngIf="email.hasError('email') && email.touched">
+          Ingresa un correo válido
+        </span>
+      </div>
+
+      <div class="field">
+        <label for="password">Contraseña</label>
+        <input id="password" type="password" formControlName="password"
+          placeholder="Mínimo 6 caracteres"
+          [class.invalid]="password.invalid && password.touched" />
+        <span class="field-error" *ngIf="password.hasError('required') && password.touched">
+          La contraseña es obligatoria
+        </span>
+        <span class="field-error" *ngIf="password.hasError('minlength') && password.touched">
+          Mínimo 6 caracteres
+        </span>
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="loading()">
+        <span *ngIf="!loading()">Registrarse</span>
+        <span *ngIf="loading()">Creando cuenta...</span>
+      </button>
+    </form>
+
+    <p class="auth-footer">
+      ¿Ya tienes cuenta? <a routerLink="/auth/login">Inicia sesión</a>
+    </p>
+
+    <div class="auth-hint">
+      <p>El rol se asigna automáticamente según el dominio:</p>
+      <div class="dominio-list">
+        <span *ngFor="let d of dominios"><code>{{ d }}</code></span>
+      </div>
+    </div>
+
+  </div>
+</div>

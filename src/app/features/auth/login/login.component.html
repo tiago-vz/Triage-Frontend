@@ -1,0 +1,73 @@
+<div class="auth-shell">
+  <div class="auth-panel">
+
+    <div class="auth-brand">
+      <span class="brand-mark">T</span>
+      <div>
+        <h1>Triagre</h1>
+        <p>Sistema de Gestión Académica</p>
+      </div>
+    </div>
+
+    <h2 class="auth-title">Iniciar sesión</h2>
+
+    <div *ngIf="error()" class="alert-error">
+      {{ error() }}
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+      <div class="field">
+        <label for="email">Correo institucional</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="nombre@estudiante.triagre.com"
+          [class.invalid]="email.invalid && email.touched"
+          autocomplete="email"
+        />
+        <span class="field-error" *ngIf="email.hasError('required') && email.touched">
+          El correo es obligatorio
+        </span>
+        <span class="field-error" *ngIf="email.hasError('email') && email.touched">
+          Ingresa un correo válido
+        </span>
+      </div>
+
+      <div class="field">
+        <label for="password">Contraseña</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="••••••••"
+          [class.invalid]="password.invalid && password.touched"
+          autocomplete="current-password"
+        />
+        <span class="field-error" *ngIf="password.hasError('required') && password.touched">
+          La contraseña es obligatoria
+        </span>
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="loading()">
+        <span *ngIf="!loading()">Ingresar</span>
+        <span *ngIf="loading()">Ingresando...</span>
+      </button>
+
+    </form>
+
+    <p class="auth-footer">
+      ¿No tienes cuenta?
+      <a routerLink="/auth/register">Regístrate aquí</a>
+    </p>
+
+    <div class="auth-hint">
+      <p>Dominios válidos:</p>
+      <code>@estudiante.triagre.com</code>
+      <code>@docente.triagre.com</code>
+      <code>@coordinacion.triagre.com</code>
+    </div>
+
+  </div>
+</div>

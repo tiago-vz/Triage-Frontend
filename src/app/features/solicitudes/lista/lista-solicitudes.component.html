@@ -1,0 +1,80 @@
+<div class="app-layout">
+  <app-sidebar></app-sidebar>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Solicitudes</h1>
+        <p class="page-subtitle" *ngIf="page()">
+          {{ page()!.totalElements }} solicitudes en total
+        </p>
+      </div>
+      <a routerLink="/solicitudes/nueva" class="btn-primary">+ Nueva</a>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-bar">
+      <select [(ngModel)]="filtros.estado" class="filter-select">
+        <option [ngValue]="null">Todos los estados</option>
+        <option *ngFor="let e of estados" [value]="e">{{ estadoLabels[e] }}</option>
+      </select>
+
+      <select [(ngModel)]="filtros.prioridad" class="filter-select">
+        <option [ngValue]="null">Todas las prioridades</option>
+        <option *ngFor="let p of prioridades" [value]="p">{{ prioridadLabels[p] }}</option>
+      </select>
+
+      <button class="btn-secondary" (click)="aplicarFiltros()">Filtrar</button>
+      <button class="btn-ghost" (click)="limpiarFiltros()">Limpiar</button>
+    </div>
+
+    <!-- Tabla -->
+    <div class="card">
+      <div *ngIf="loading()" class="loading-state">Cargando solicitudes...</div>
+
+      <table *ngIf="!loading() && page()?.content?.length" class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Descripción</th>
+            <th>Estado</th>
+            <th>Prioridad</th>
+            <th>Canal</th>
+            <th>Fecha</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of page()!.content">
+            <td class="cell-id">{{ s.id }}</td>
+            <td class="cell-desc">
+              {{ s.descripcion | slice:0:70 }}{{ s.descripcion.length > 70 ? '...' : '' }}
+            </td>
+            <td><app-estado-badge [estado]="s.estado"></app-estado-badge></td>
+            <td><app-prioridad-badge [prioridad]="s.prioridad"></app-prioridad-badge></td>
+            <td class="cell-canal">{{ s.canalOrigen }}</td>
+            <td class="cell-date">{{ s.fechaCreacion | date:'dd/MM/yy' }}</td>
+            <td>
+              <a [routerLink]="['/solicitudes', s.id]" class="link-detail">Ver →</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="!loading() && !page()?.content?.length" class="empty-state">
+        <p>No se encontraron solicitudes con los filtros aplicados.</p>
+      </div>
+    </div>
+
+    <!-- Paginación -->
+    <div class="pagination" *ngIf="totalPaginas > 1">
+      <button
+        *ngFor="let p of paginas"
+        class="page-btn"
+        [class.active]="p === paginaActual"
+        (click)="irPagina(p)"
+      >{{ p + 1 }}</button>
+    </div>
+
+  </main>
+</div>

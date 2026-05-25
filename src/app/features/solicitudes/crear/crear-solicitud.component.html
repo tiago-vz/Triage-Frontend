@@ -1,0 +1,58 @@
+<div class="app-layout">
+  <app-sidebar></app-sidebar>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Nueva Solicitud</h1>
+        <p class="page-subtitle">Describe tu solicitud académica</p>
+      </div>
+      <a routerLink="/solicitudes" class="btn-ghost">← Volver</a>
+    </div>
+
+    <div class="card form-card">
+      <div *ngIf="error()" class="alert-error">{{ error() }}</div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+        <div class="field">
+          <label for="descripcion">Descripción de la solicitud</label>
+          <textarea
+            id="descripcion"
+            formControlName="descripcion"
+            rows="5"
+            placeholder="Describe detalladamente tu solicitud (mínimo 10 caracteres)..."
+            [class.invalid]="descripcion.invalid && descripcion.touched"
+          ></textarea>
+          <span class="field-error" *ngIf="descripcion.hasError('required') && descripcion.touched">
+            La descripción es obligatoria
+          </span>
+          <span class="field-error" *ngIf="descripcion.hasError('minlength') && descripcion.touched">
+            Mínimo 10 caracteres
+          </span>
+          <span class="field-hint">{{ descripcion.value?.length ?? 0 }} caracteres</span>
+        </div>
+
+        <div class="field">
+          <label for="canal">Canal de origen</label>
+          <select id="canal" formControlName="canalOrigen"
+            [class.invalid]="canalOrigen.invalid && canalOrigen.touched">
+            <option [ngValue]="null" disabled>Selecciona el canal...</option>
+            <option *ngFor="let c of canales" [value]="c">{{ canalLabels[c] }}</option>
+          </select>
+          <span class="field-error" *ngIf="canalOrigen.hasError('required') && canalOrigen.touched">
+            Selecciona un canal
+          </span>
+        </div>
+
+        <div class="form-actions">
+          <a routerLink="/solicitudes" class="btn-ghost">Cancelar</a>
+          <button type="submit" class="btn-primary" [disabled]="loading()">
+            {{ loading() ? 'Enviando...' : 'Crear Solicitud' }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </main>
+</div>

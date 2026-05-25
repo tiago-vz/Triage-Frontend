@@ -1,0 +1,185 @@
+<div class="app-layout">
+  <app-sidebar></app-sidebar>
+
+  <main class="main-content">
+    <div *ngIf="loading()" class="loading-state">Cargando solicitud...</div>
+
+    <ng-container *ngIf="!loading() && solicitud() as s">
+
+      <!-- Header -->
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Solicitud #{{ s.id }}</h1>
+          <p class="page-subtitle">{{ s.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}</p>
+        </div>
+        <a routerLink="/solicitudes" class="btn-ghost">← Volver</a>
+      </div>
+
+      <div *ngIf="error()" class="alert-error">{{ error() }}</div>
+
+      <!-- Progreso del flujo -->
+      <div class="workflow-progress">
+        <div
+          *ngFor="let estado of FLUJO_ESTADOS; let i = index"
+          class="progress-step"
+          [class.done]="i < estadoActualIndex"
+          [class.current]="i === estadoActualIndex"
+        >
+          <div class="step-dot"></div>
+          <span class="step-label">{{ ESTADO_LABELS[estado] }}</span>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab" [class.active]="tabActiva() === 'detalle'" (click)="tabActiva.set('detalle')">
+          Detalle
+        </button>
+        <button class="tab" [class.active]="tabActiva() === 'historial'" (click)="tabActiva.set('historial')">
+          Historial
+        </button>
+        <button *ngIf="isCoordinador()" class="tab" [class.active]="tabActiva() === 'workflow'"
+          (click)="tabActiva.set('workflow')">
+          Gestión ⚙️
+        </button>
+      </div>
+
+      <!-- TAB: Detalle -->
+      <div *ngIf="tabActiva() === 'detalle'" class="card">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Estado</span>
+            <app-estado-badge [estado]="s.estado"></app-estado-badge>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Prioridad</span>
+            <app-prioridad-badge [prioridad]="s.prioridad"></app-prioridad-badge>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Canal</span>
+            <span>{{ CANAL_LABELS[s.canalOrigen] }}</span>
+          </div>
+          <div class="detail-item" *ngIf="s.justificacionPrioridad">
+            <span class="detail-label">Justificación prioridad</span>
+            <span>{{ s.justificacionPrioridad }}</span>
+          </div>
+        </div>
+        <div class="detail-desc">
+          <span class="detail-label">Descripción</span>
+          <p>{{ s.descripcion }}</p>
+        </div>
+      </div>
+
+      <!-- TAB: Historial -->
+      <div *ngIf="tabActiva() === 'historial'" class="card">
+        <div class="timeline">
+          <div *ngFor="let h of historial()" class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <app-estado-badge *ngIf="h.estadoAnterior" [estado]="h.estadoAnterior"></app-estado-badge>
+                <span class="arrow" *ngIf="h.estadoAnterior">→</span>
+                <app-estado-badge [estado]="h.estadoNuevo"></app-estado-badge>
+                <span class="timeline-date">{{ h.fechaCambio | date:'dd/MM/yy HH:mm' }}</span>
+              </div>
+              <p *ngIf="h.comentarios" class="timeline-comment">{{ h.comentarios }}</p>
+            </div>
+          </div>
+          <div *ngIf="!historial().length" class="empty-state">Sin historial aún.</div>
+        </div>
+      </div>
+
+      <!-- TAB: Workflow (solo COORDINADOR) -->
+      <div *ngIf="tabActiva() === 'workflow' && isCoordinador()">
+
+        <!-- Clasificar -->
+        <div class="card workflow-card" *ngIf="s.estado === 'REGISTRADA'">
+          <h3 class="workflow-title">Clasificar y Priorizar</h3>
+          <form [formGroup]="formClasificacion" (ngSubmit)="clasificar()">
+            <div class="field">
+              <label>Tipo de solicitud</label>
+              <select formControlName="tipoSolicitudId">
+                <option [ngValue]="null" disabled>Seleccionar tipo...</option>
+                <option *ngFor="let t of tipos()" [value]="t.id">{{ t.nombre }}</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Nivel de prioridad</label>
+              <select formControlName="prioridad">
+                <option [ngValue]="null" disabled>Seleccionar prioridad...</option>
+                <option *ngFor="let p of prioridades" [value]="p">{{ p }}</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Justificación</label>
+              <textarea formControlName="justificacionPrioridad" rows="3"
+                placeholder="Explica el nivel de prioridad asignado..."></textarea>
+            </div>
+            <button type="submit" class="btn-primary" [disabled]="accionLoading()">
+              {{ accionLoading() ? 'Guardando...' : 'Clasificar' }}
+            </button>
+          </form>
+        </div>
+
+        <!-- Asignar -->
+        <div class="card workflow-card" *ngIf="s.estado === 'CLASIFICADA'">
+          <h3 class="workflow-title">Asignar Responsable</h3>
+          <form [formGroup]="formAsignacion" (ngSubmit)="asignar()">
+            <div class="field">
+              <label>Responsable</label>
+              <select formControlName="usuarioId">
+                <option [ngValue]="null" disabled>Seleccionar usuario...</option>
+                <option *ngFor="let u of usuarios()" [value]="u.id">{{ u.nombre }} ({{ u.rol }})</option>
+              </select>
+            </div>
+            <button type="submit" class="btn-primary" [disabled]="accionLoading()">
+              {{ accionLoading() ? 'Asignando...' : 'Asignar' }}
+            </button>
+          </form>
+        </div>
+
+        <!-- Atender -->
+        <div class="card workflow-card" *ngIf="s.estado === 'EN_ATENCION'">
+          <h3 class="workflow-title">Marcar como Atendida</h3>
+          <form [formGroup]="formAtencion" (ngSubmit)="atender()">
+            <div class="field">
+              <label>Comentarios de atención</label>
+              <textarea formControlName="comentariosAtencion" rows="4"
+                placeholder="Describe las acciones tomadas..."></textarea>
+            </div>
+            <button type="submit" class="btn-primary" [disabled]="accionLoading()">
+              {{ accionLoading() ? 'Guardando...' : 'Marcar como Atendida' }}
+            </button>
+          </form>
+        </div>
+
+        <!-- Cerrar -->
+        <div class="card workflow-card" *ngIf="s.estado === 'ATENDIDA'">
+          <h3 class="workflow-title">Cierre Definitivo</h3>
+          <form [formGroup]="formCierre" (ngSubmit)="cerrar()">
+            <div class="field">
+              <label>Comentarios de cierre</label>
+              <textarea formControlName="comentariosCierre" rows="4"
+                placeholder="Resumen final de la solicitud..."></textarea>
+            </div>
+            <button type="submit" class="btn-danger" [disabled]="accionLoading()">
+              {{ accionLoading() ? 'Cerrando...' : 'Cerrar Solicitud' }}
+            </button>
+          </form>
+
+          <!-- Resumen IA -->
+          <div class="ia-section">
+            <button class="btn-ghost" (click)="cargarResumen()">🤖 Generar resumen con IA</button>
+            <div *ngIf="resumen()" class="ia-result">{{ resumen() }}</div>
+          </div>
+        </div>
+
+        <div *ngIf="s.estado === 'CERRADA'" class="card">
+          <p class="text-center">Esta solicitud ya fue cerrada.</p>
+        </div>
+
+      </div>
+
+    </ng-container>
+  </main>
+</div>

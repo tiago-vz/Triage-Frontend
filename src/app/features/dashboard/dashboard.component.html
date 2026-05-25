@@ -1,0 +1,87 @@
+<div class="app-layout">
+  <app-sidebar></app-sidebar>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">
+          Bienvenido, <strong>{{ usuario()?.nombre }}</strong>
+        </p>
+      </div>
+      <a routerLink="/solicitudes/nueva" class="btn-primary">
+        + Nueva Solicitud
+      </a>
+    </div>
+
+    <!-- Métricas -->
+    <div class="stats-grid">
+      <div class="stat-card stat-card--registrada">
+        <span class="stat-icon">📥</span>
+        <div>
+          <p class="stat-value">{{ countByEstado(EstadoSolicitud.REGISTRADA) }}</p>
+          <p class="stat-label">Registradas</p>
+        </div>
+      </div>
+      <div class="stat-card stat-card--clasificada">
+        <span class="stat-icon">🏷️</span>
+        <div>
+          <p class="stat-value">{{ countByEstado(EstadoSolicitud.CLASIFICADA) }}</p>
+          <p class="stat-label">Clasificadas</p>
+        </div>
+      </div>
+      <div class="stat-card stat-card--atencion">
+        <span class="stat-icon">⚙️</span>
+        <div>
+          <p class="stat-value">{{ countByEstado(EstadoSolicitud.EN_ATENCION) }}</p>
+          <p class="stat-label">En Atención</p>
+        </div>
+      </div>
+      <div class="stat-card stat-card--cerrada">
+        <span class="stat-icon">✅</span>
+        <div>
+          <p class="stat-value">{{ countByEstado(EstadoSolicitud.CERRADA) }}</p>
+          <p class="stat-label">Cerradas</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla reciente -->
+    <section class="card">
+      <div class="card-header">
+        <h2>Solicitudes recientes</h2>
+        <a routerLink="/solicitudes" class="link-all">Ver todas →</a>
+      </div>
+
+      <div *ngIf="loading()" class="loading-state">Cargando...</div>
+
+      <table *ngIf="!loading() && solicitudes().length > 0" class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Descripción</th>
+            <th>Estado</th>
+            <th>Prioridad</th>
+            <th>Fecha</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of solicitudes()">
+            <td class="cell-id">{{ s.id }}</td>
+            <td class="cell-desc">{{ s.descripcion | slice:0:60 }}{{ s.descripcion.length > 60 ? '...' : '' }}</td>
+            <td><app-estado-badge [estado]="s.estado"></app-estado-badge></td>
+            <td><app-prioridad-badge [prioridad]="s.prioridad"></app-prioridad-badge></td>
+            <td class="cell-date">{{ s.fechaCreacion | date:'dd/MM/yyyy' }}</td>
+            <td><a [routerLink]="['/solicitudes', s.id]" class="link-detail">Ver</a></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="!loading() && solicitudes().length === 0" class="empty-state">
+        <p>No hay solicitudes aún.</p>
+        <a routerLink="/solicitudes/nueva" class="btn-primary">Crear la primera</a>
+      </div>
+    </section>
+  </main>
+</div>
