@@ -41,7 +41,7 @@
         <button class="tab" [class.active]="tabActiva() === 'comentarios'" (click)="tabActiva.set('comentarios')">
           Comentarios 💬
         </button>
-        <button *ngIf="isCoordinador()" class="tab" [class.active]="tabActiva() === 'workflow'"
+        <button *ngIf="isGestor()" class="tab" [class.active]="tabActiva() === 'workflow'"
           (click)="tabActiva.set('workflow')">
           Gestión ⚙️
         </button>
@@ -132,8 +132,8 @@
         </div>
       </div>
 
-      <!-- TAB: Workflow (solo COORDINADOR) -->
-      <div *ngIf="tabActiva() === 'workflow' && isCoordinador()">
+      <!-- TAB: Workflow (COORDINADOR y ADMINISTRATIVO) -->
+      <div *ngIf="tabActiva() === 'workflow' && isGestor()">
 
         <!-- Clasificar -->
         <div class="card workflow-card" *ngIf="s.estado === 'REGISTRADA'">

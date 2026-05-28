@@ -27,6 +27,9 @@ export class SidebarComponent {
       { label: 'Nueva Solicitud', icon: '＋', route: '/solicitudes/nueva' },
       { label: 'Mi Perfil', icon: '👤', route: '/perfil' },
     ];
+    if (this.isCoordinador()) {
+      base.push({ label: 'Tipos de Solicitud', icon: '🏷️', route: '/tipos-solicitud' });
+    }
     return base;
   });
 

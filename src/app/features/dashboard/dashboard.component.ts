@@ -20,6 +20,7 @@ import { SolicitudResponse, EstadoSolicitud, EstadisticasResponse } from '../../
 export class DashboardComponent implements OnInit {
   readonly usuario = this.auth.usuario;
   readonly isCoordinador = this.auth.isCoordinador;
+  readonly isGestor = this.auth.isGestor;
 
   solicitudes = signal<SolicitudResponse[]>([]);
   stats = signal<EstadisticasResponse | null>(null);

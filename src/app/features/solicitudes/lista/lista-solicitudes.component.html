@@ -10,7 +10,7 @@
         </p>
       </div>
       <div style="display: flex; gap: 10px; align-items: center;">
-        <button *ngIf="isCoordinador()" class="btn-secondary" (click)="exportarCSV()">📥 Exportar CSV</button>
+        <button *ngIf="isGestor()" class="btn-secondary" (click)="exportarCSV()">📥 Exportar CSV</button>
         <a routerLink="/solicitudes/nueva" class="btn-primary">+ Nueva</a>
       </div>
     </div>
@@ -50,8 +50,8 @@
             <th>Descripción</th>
             <th>Estado</th>
             <th>Prioridad</th>
-            <th *ngIf="isCoordinador()">Solicitante</th>
-            <th *ngIf="isCoordinador()">Responsable</th>
+            <th *ngIf="isGestor()">Solicitante</th>
+            <th *ngIf="isGestor()">Responsable</th>
             <th>Canal</th>
             <th>Fecha</th>
             <th></th>
@@ -65,8 +65,8 @@
             </td>
             <td><app-estado-badge [estado]="s.estado"></app-estado-badge></td>
             <td><app-prioridad-badge [prioridad]="s.prioridad"></app-prioridad-badge></td>
-            <td *ngIf="isCoordinador()" class="cell-canal">{{ s.solicitanteNombre }}</td>
-            <td *ngIf="isCoordinador()" class="cell-canal">{{ s.usuarioAsignadoNombre || '—' }}</td>
+            <td *ngIf="isGestor()" class="cell-canal">{{ s.solicitanteNombre }}</td>
+            <td *ngIf="isGestor()" class="cell-canal">{{ s.usuarioAsignadoNombre || '—' }}</td>
             <td class="cell-canal">{{ s.canalOrigen }}</td>
             <td class="cell-date">{{ s.fechaCreacion | date:'dd/MM/yy' }}</td>
             <td>

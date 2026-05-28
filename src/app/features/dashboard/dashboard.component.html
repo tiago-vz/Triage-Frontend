@@ -7,7 +7,7 @@
         <h1 class="page-title">Dashboard</h1>
         <p class="page-subtitle">
           Bienvenido, <strong>{{ usuario()?.nombre }}</strong>
-          <span *ngIf="isCoordinador()"> — Vista de Coordinador</span>
+          <span *ngIf="isGestor()"> — Vista de Gestión</span>
         </p>
       </div>
       <a routerLink="/solicitudes/nueva" class="btn-primary">
@@ -50,7 +50,7 @@
     <!-- Tabla reciente -->
     <section class="card">
       <div class="card-header">
-        <h2>{{ isCoordinador() ? 'Todas las solicitudes recientes' : 'Mis solicitudes recientes' }}</h2>
+        <h2>{{ isGestor() ? 'Todas las solicitudes recientes' : 'Mis solicitudes recientes' }}</h2>
         <a routerLink="/solicitudes" class="link-all">Ver todas →</a>
       </div>
 
@@ -63,7 +63,7 @@
             <th>Descripción</th>
             <th>Estado</th>
             <th>Prioridad</th>
-            <th *ngIf="isCoordinador()">Solicitante</th>
+            <th *ngIf="isGestor()">Solicitante</th>
             <th>Fecha</th>
             <th></th>
           </tr>
@@ -74,7 +74,7 @@
             <td class="cell-desc">{{ s.descripcion | slice:0:60 }}{{ s.descripcion.length > 60 ? '...' : '' }}</td>
             <td><app-estado-badge [estado]="s.estado"></app-estado-badge></td>
             <td><app-prioridad-badge [prioridad]="s.prioridad"></app-prioridad-badge></td>
-            <td *ngIf="isCoordinador()" class="cell-canal">{{ s.solicitanteNombre }}</td>
+            <td *ngIf="isGestor()" class="cell-canal">{{ s.solicitanteNombre }}</td>
             <td class="cell-date">{{ s.fechaCreacion | date:'dd/MM/yyyy' }}</td>
             <td><a [routerLink]="['/solicitudes', s.id]" class="link-detail">Ver</a></td>
           </tr>

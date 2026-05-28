@@ -51,6 +51,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/perfil/perfil.component').then(m => m.PerfilComponent),
   },
+  {
+    path: 'tipos-solicitud',
+    canActivate: [coordinadorGuard],
+    loadComponent: () =>
+      import('./features/tipos-solicitud/tipos-solicitud.component').then(m => m.TiposSolicitudComponent),
+  },
 
   // Wildcard: página no encontrada
   {

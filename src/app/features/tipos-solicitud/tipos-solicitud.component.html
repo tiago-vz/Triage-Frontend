@@ -1,0 +1,69 @@
+<div class="app-layout">
+  <app-sidebar></app-sidebar>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Tipos de Solicitud</h1>
+        <p class="page-subtitle">Gestiona los tipos de solicitudes disponibles</p>
+      </div>
+      <button class="btn-primary" (click)="toggleForm()">
+        {{ formVisible() ? '✕ Cancelar' : '+ Nuevo Tipo' }}
+      </button>
+    </div>
+
+    <!-- Formulario crear -->
+    <div class="card" *ngIf="formVisible()" style="margin-bottom: 24px;">
+      <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; color: var(--text-primary);">
+        Crear nuevo tipo de solicitud
+      </h3>
+      <form [formGroup]="form" (ngSubmit)="crear()">
+        <div class="field">
+          <label for="nombre">Nombre *</label>
+          <input id="nombre" type="text" formControlName="nombre" placeholder="Ej: Solicitud de examen..." />
+          <span class="field-error" *ngIf="nombre.hasError('required') && nombre.touched">
+            El nombre es obligatorio
+          </span>
+          <span class="field-error" *ngIf="nombre.hasError('minlength') && nombre.touched">
+            Mínimo 3 caracteres
+          </span>
+        </div>
+        <div class="field">
+          <label for="descripcion">Descripción</label>
+          <textarea id="descripcion" formControlName="descripcion" rows="3"
+            placeholder="Descripción opcional del tipo de solicitud..."></textarea>
+        </div>
+        <button type="submit" class="btn-primary" [disabled]="saving()">
+          {{ saving() ? 'Guardando...' : 'Crear Tipo' }}
+        </button>
+      </form>
+    </div>
+
+    <!-- Lista de tipos -->
+    <div class="card">
+      <div *ngIf="loading()" class="loading-state">Cargando tipos...</div>
+
+      <table *ngIf="!loading() && tipos().length" class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of tipos()">
+            <td class="cell-id">{{ t.id }}</td>
+            <td style="font-weight: 600;">{{ t.nombre }}</td>
+            <td class="cell-desc">{{ t.descripcion || '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="!loading() && !tipos().length" class="empty-state">
+        <p>No hay tipos de solicitud creados aún.</p>
+        <button class="btn-primary" (click)="toggleForm()">Crear el primero</button>
+      </div>
+    </div>
+  </main>
+</div>

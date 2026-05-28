@@ -23,6 +23,7 @@ export class AuthService {
   readonly usuario = this._usuario.asReadonly();
   readonly isAuthenticated = computed(() => this._token() !== null);
   readonly isCoordinador = computed(() => this._usuario()?.rol === Rol.COORDINADOR);
+  readonly isGestor = computed(() => this._usuario()?.rol === Rol.COORDINADOR || this._usuario()?.rol === Rol.ADMINISTRATIVO);
   readonly rol = computed(() => this._usuario()?.rol ?? null);
 
   constructor(private http: HttpClient, private router: Router) {}

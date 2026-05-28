@@ -13,7 +13,7 @@ import { ToastService } from '../../../shared/services/toast.service';
 import {
   SolicitudResponse, HistorialResponse, TipoSolicitud, Usuario,
   ComentarioResponse,
-  EstadoSolicitud, NivelPrioridad, FLUJO_ESTADOS,
+  EstadoSolicitud, NivelPrioridad, Rol, FLUJO_ESTADOS,
   ESTADO_LABELS, CANAL_LABELS
 } from '../../../core/models';
 
@@ -47,6 +47,7 @@ export class DetalleSolicitudComponent implements OnInit {
   nuevoComentario = '';
 
   readonly isCoordinador = this.auth.isCoordinador;
+  readonly isGestor = this.auth.isGestor;
   readonly FLUJO_ESTADOS = FLUJO_ESTADOS;
   readonly ESTADO_LABELS = ESTADO_LABELS;
   readonly CANAL_LABELS = CANAL_LABELS;
@@ -71,9 +72,12 @@ export class DetalleSolicitudComponent implements OnInit {
     this.initForms();
     this.cargar();
     this.cargarComentarios();
-    if (this.isCoordinador()) {
+    if (this.isGestor()) {
       this.catalogo.getTiposSolicitud().subscribe(t => this.tipos.set(t));
-      this.catalogo.getUsuarios().subscribe(u => this.usuarios.set(u));
+      this.catalogo.getUsuarios().subscribe(u => {
+        // Solo mostrar COORDINADOR y ADMINISTRATIVO como posibles responsables
+        this.usuarios.set(u.filter(user => user.rol === Rol.COORDINADOR || user.rol === Rol.ADMINISTRATIVO));
+      });
     }
   }
 

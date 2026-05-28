@@ -37,6 +37,7 @@ export class ListaSolicitudesComponent implements OnInit {
   readonly prioridadLabels = PRIORIDAD_LABELS;
 
   readonly isCoordinador = this.auth.isCoordinador;
+  readonly isGestor = this.auth.isGestor;
 
   constructor(
     private service: SolicitudService,
