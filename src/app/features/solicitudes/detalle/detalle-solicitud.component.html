@@ -38,6 +38,9 @@
         <button class="tab" [class.active]="tabActiva() === 'historial'" (click)="tabActiva.set('historial')">
           Historial
         </button>
+        <button class="tab" [class.active]="tabActiva() === 'comentarios'" (click)="tabActiva.set('comentarios')">
+          Comentarios 💬
+        </button>
         <button *ngIf="isCoordinador()" class="tab" [class.active]="tabActiva() === 'workflow'"
           (click)="tabActiva.set('workflow')">
           Gestión ⚙️
@@ -58,6 +61,14 @@
           <div class="detail-item">
             <span class="detail-label">Canal</span>
             <span>{{ CANAL_LABELS[s.canalOrigen] }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Solicitante</span>
+            <span>{{ s.solicitanteNombre }} ({{ s.solicitanteEmail }})</span>
+          </div>
+          <div class="detail-item" *ngIf="s.usuarioAsignadoNombre">
+            <span class="detail-label">Responsable asignado</span>
+            <span>{{ s.usuarioAsignadoNombre }}</span>
           </div>
           <div class="detail-item" *ngIf="s.justificacionPrioridad">
             <span class="detail-label">Justificación prioridad</span>
@@ -82,10 +93,42 @@
                 <app-estado-badge [estado]="h.estadoNuevo"></app-estado-badge>
                 <span class="timeline-date">{{ h.fechaCambio | date:'dd/MM/yy HH:mm' }}</span>
               </div>
+              <p *ngIf="h.autorCambioNombre" class="timeline-comment" style="font-weight:600;color:var(--primary);margin-bottom:2px;">
+                Por: {{ h.autorCambioNombre }}
+              </p>
               <p *ngIf="h.comentarios" class="timeline-comment">{{ h.comentarios }}</p>
             </div>
           </div>
           <div *ngIf="!historial().length" class="empty-state">Sin historial aún.</div>
+        </div>
+      </div>
+
+      <!-- TAB: Comentarios -->
+      <div *ngIf="tabActiva() === 'comentarios'" class="card">
+        <div class="comments-section">
+          <div *ngFor="let c of comentarios()" class="comment-item">
+            <div class="comment-header">
+              <span class="comment-author">{{ c.autorNombre }}</span>
+              <span class="comment-date">{{ c.fechaCreacion | date:'dd/MM/yy HH:mm' }}</span>
+            </div>
+            <div class="comment-body">{{ c.contenido }}</div>
+          </div>
+
+          <div *ngIf="!comentarios().length" class="empty-state" style="padding:20px;">
+            <p>No hay comentarios aún. Sé el primero en comentar.</p>
+          </div>
+
+          <!-- Formulario nuevo comentario -->
+          <div class="comment-form" *ngIf="s.estado !== 'CERRADA'">
+            <textarea
+              [(ngModel)]="nuevoComentario"
+              placeholder="Escribe un comentario..."
+              rows="2"
+            ></textarea>
+            <button class="btn-primary" (click)="enviarComentario()" [disabled]="comentarioLoading() || !nuevoComentario.trim()">
+              {{ comentarioLoading() ? '...' : 'Enviar' }}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -95,6 +138,12 @@
         <!-- Clasificar -->
         <div class="card workflow-card" *ngIf="s.estado === 'REGISTRADA'">
           <h3 class="workflow-title">Clasificar y Priorizar</h3>
+
+          <!-- Botón sugerencia IA -->
+          <button class="ia-suggestion-btn" (click)="sugerirClasificacion()" [disabled]="iaLoading()">
+            {{ iaLoading() ? '⏳ Analizando...' : '🤖 Sugerir con IA' }}
+          </button>
+
           <form [formGroup]="formClasificacion" (ngSubmit)="clasificar()">
             <div class="field">
               <label>Tipo de solicitud</label>
@@ -156,7 +205,7 @@
         <!-- Cerrar -->
         <div class="card workflow-card" *ngIf="s.estado === 'ATENDIDA'">
           <h3 class="workflow-title">Cierre Definitivo</h3>
-          <form [formGroup]="formCierre" (ngSubmit)="cerrar()">
+          <form [formGroup]="formCierre" (ngSubmit)="confirmarCierre()">
             <div class="field">
               <label>Comentarios de cierre</label>
               <textarea formControlName="comentariosCierre" rows="4"
@@ -183,3 +232,6 @@
     </ng-container>
   </main>
 </div>
+
+<!-- Modal de confirmación -->
+<app-confirm-modal #confirmModal></app-confirm-modal>

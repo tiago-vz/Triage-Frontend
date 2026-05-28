@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
 import { SolicitudService } from '../../../core/auth/solicitud.service';
+import { ToastService } from '../../../shared/services/toast.service';
 import { CanalOrigen, CANAL_LABELS } from '../../../core/models';
 
 @Component({
@@ -23,7 +24,8 @@ export class CrearSolicitudComponent {
   constructor(
     private fb: FormBuilder,
     private service: SolicitudService,
-    private router: Router
+    private router: Router,
+    private toast: ToastService
   ) {
     this.form = this.fb.group({
       descripcion: ['', [Validators.required, Validators.minLength(10)]],
@@ -37,7 +39,7 @@ export class CrearSolicitudComponent {
     this.error.set(null);
 
     this.service.crear(this.form.value).subscribe({
-      next: (s) => this.router.navigate(['/solicitudes', s.id]),
+      next: (s) => { this.toast.success('Solicitud creada exitosamente'); this.router.navigate(['/solicitudes', s.id]); },
       error: (err) => {
         this.error.set(err.error?.message ?? 'Error al crear la solicitud');
         this.loading.set(false);

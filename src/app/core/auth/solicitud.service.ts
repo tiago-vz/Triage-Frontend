@@ -6,7 +6,8 @@ import { environment } from '../../../environments/environment';
 import {
   SolicitudResponse, HistorialResponse, PageResponse,
   CrearSolicitudRequest, ClasificacionRequest, AsignacionRequest,
-  AtencionRequest, CierreRequest, SolicitudFiltros, SuccessResponse
+  AtencionRequest, CierreRequest, SolicitudFiltros, SuccessResponse,
+  EstadisticasResponse, ComentarioResponse, ComentarioRequest, IAResponse
 } from '../models';
 
 @Injectable({ providedIn: 'root' })
@@ -27,6 +28,7 @@ export class SolicitudService {
     if (filtros.tipoId)       params = params.set('tipoId', filtros.tipoId);
     if (filtros.prioridad)    params = params.set('prioridad', filtros.prioridad);
     if (filtros.responsableId) params = params.set('responsableId', filtros.responsableId);
+    if (filtros.search)       params = params.set('search', filtros.search);
     if (filtros.page != null) params = params.set('page', filtros.page);
     if (filtros.size != null) params = params.set('size', filtros.size);
 
@@ -73,5 +75,36 @@ export class SolicitudService {
     return this.http
       .get<SuccessResponse<string>>(`${this.baseUrl}/${id}/resumen`)
       .pipe(map(r => r.data));
+  }
+
+  // ── Nuevos métodos ──────────────────────────────────────
+
+  obtenerEstadisticas(): Observable<EstadisticasResponse> {
+    return this.http
+      .get<SuccessResponse<EstadisticasResponse>>(`${this.baseUrl}/estadisticas`)
+      .pipe(map(r => r.data));
+  }
+
+  agregarComentario(id: number, request: ComentarioRequest): Observable<ComentarioResponse> {
+    return this.http
+      .post<SuccessResponse<ComentarioResponse>>(`${this.baseUrl}/${id}/comentarios`, request)
+      .pipe(map(r => r.data));
+  }
+
+  listarComentarios(id: number): Observable<ComentarioResponse[]> {
+    return this.http
+      .get<SuccessResponse<ComentarioResponse[]>>(`${this.baseUrl}/${id}/comentarios`)
+      .pipe(map(r => r.data));
+  }
+
+  exportarCSV(): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/exportar`, {
+      responseType: 'blob'
+    });
+  }
+
+  sugerirClasificacion(descripcion: string): Observable<IAResponse> {
+    return this.http
+      .post<IAResponse>(`${environment.apiUrl}/ia/sugerencia-clasificacion`, { descripcion });
   }
 }

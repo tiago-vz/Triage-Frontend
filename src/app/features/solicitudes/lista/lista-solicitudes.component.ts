@@ -7,6 +7,7 @@ import { EstadoBadgeComponent } from '../../../shared/components/estado-badge/es
 import { PrioridadBadgeComponent } from '../../../shared/components/prioridad-badge/prioridad-badge.component';
 import { SolicitudService } from '../../../core/auth/solicitud.service';
 import { AuthService } from '../../../core/auth/auth.service';
+import { ToastService } from '../../../shared/services/toast.service';
 import {
   SolicitudResponse, PageResponse,
   EstadoSolicitud, NivelPrioridad, SolicitudFiltros,
@@ -28,6 +29,7 @@ export class ListaSolicitudesComponent implements OnInit {
 
   // Filtros vinculados al formulario
   filtros: SolicitudFiltros = { page: 0, size: 15 };
+  searchText = '';
 
   readonly estados = Object.values(EstadoSolicitud);
   readonly prioridades = Object.values(NivelPrioridad);
@@ -38,13 +40,19 @@ export class ListaSolicitudesComponent implements OnInit {
 
   constructor(
     private service: SolicitudService,
-    private auth: AuthService
+    private auth: AuthService,
+    private toast: ToastService
   ) {}
 
   ngOnInit(): void { this.cargar(); }
 
   cargar(): void {
     this.loading.set(true);
+    if (this.searchText.trim()) {
+      this.filtros.search = this.searchText.trim();
+    } else {
+      this.filtros.search = null;
+    }
     this.service.listar(this.filtros).subscribe({
       next: (p) => { this.page.set(p); this.loading.set(false); },
       error: () => this.loading.set(false),
@@ -58,12 +66,28 @@ export class ListaSolicitudesComponent implements OnInit {
 
   limpiarFiltros(): void {
     this.filtros = { page: 0, size: 15 };
+    this.searchText = '';
     this.cargar();
   }
 
   irPagina(n: number): void {
     this.filtros.page = n;
     this.cargar();
+  }
+
+  exportarCSV(): void {
+    this.service.exportarCSV().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'solicitudes.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
+        this.toast.success('CSV exportado correctamente');
+      },
+      error: () => this.toast.error('Error al exportar CSV'),
+    });
   }
 
   get paginaActual(): number { return this.filtros.page ?? 0; }

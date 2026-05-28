@@ -1,4 +1,10 @@
-<nav class="sidebar">
+<!-- Mobile hamburger toggle -->
+<button class="sidebar-toggle" (click)="toggleMobile()">☰</button>
+
+<!-- Overlay for mobile -->
+<div class="sidebar-overlay" *ngIf="mobileOpen()" (click)="closeMobile()"></div>
+
+<nav class="sidebar" [class.sidebar--open]="mobileOpen()">
   <div class="sidebar-header">
     <span class="sidebar-brand-mark">T</span>
     <span class="sidebar-brand-name">Triagre</span>
@@ -19,6 +25,7 @@
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
         class="nav-item"
+        (click)="closeMobile()"
       >
         <span class="nav-icon">{{ item.icon }}</span>
         <span>{{ item.label }}</span>

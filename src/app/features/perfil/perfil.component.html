@@ -1,0 +1,50 @@
+<div class="app-layout">
+  <app-sidebar></app-sidebar>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Mi Perfil</h1>
+        <p class="page-subtitle">Gestiona tu información personal</p>
+      </div>
+    </div>
+
+    <div class="card profile-card" *ngIf="perfil()">
+      <div class="profile-info">
+        <div class="profile-avatar">{{ perfil().nombre?.charAt(0)?.toUpperCase() }}</div>
+        <div class="profile-details">
+          <span class="profile-name">{{ perfil().nombre }}</span>
+          <span class="profile-email">{{ perfil().email }}</span>
+          <span class="profile-role">{{ rolLabels[$any(perfil().rol)] || perfil().rol }}</span>
+        </div>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+        <div class="field">
+          <label for="nombre">Nombre</label>
+          <input id="nombre" type="text" formControlName="nombre"
+            [class.invalid]="nombre.invalid && nombre.touched" />
+          <span class="field-error" *ngIf="nombre.hasError('required') && nombre.touched">
+            El nombre es obligatorio
+          </span>
+          <span class="field-error" *ngIf="nombre.hasError('minlength') && nombre.touched">
+            Mínimo 3 caracteres
+          </span>
+        </div>
+
+        <div class="field">
+          <label for="password">Nueva contraseña (dejar en blanco para no cambiar)</label>
+          <input id="password" type="password" formControlName="nuevaPassword"
+            placeholder="••••••" />
+          <span class="field-hint">Mínimo 6 caracteres si deseas cambiarla</span>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" [disabled]="loading()">
+            {{ loading() ? 'Guardando...' : 'Guardar Cambios' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>

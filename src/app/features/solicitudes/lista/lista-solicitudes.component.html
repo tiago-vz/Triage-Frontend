@@ -9,11 +9,22 @@
           {{ page()!.totalElements }} solicitudes en total
         </p>
       </div>
-      <a routerLink="/solicitudes/nueva" class="btn-primary">+ Nueva</a>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <button *ngIf="isCoordinador()" class="btn-secondary" (click)="exportarCSV()">📥 Exportar CSV</button>
+        <a routerLink="/solicitudes/nueva" class="btn-primary">+ Nueva</a>
+      </div>
     </div>
 
     <!-- Filtros -->
     <div class="filters-bar">
+      <input
+        type="text"
+        class="filter-search"
+        placeholder="🔍 Buscar por descripción..."
+        [(ngModel)]="searchText"
+        (keyup.enter)="aplicarFiltros()"
+      />
+
       <select [(ngModel)]="filtros.estado" class="filter-select">
         <option [ngValue]="null">Todos los estados</option>
         <option *ngFor="let e of estados" [value]="e">{{ estadoLabels[e] }}</option>
@@ -39,6 +50,8 @@
             <th>Descripción</th>
             <th>Estado</th>
             <th>Prioridad</th>
+            <th *ngIf="isCoordinador()">Solicitante</th>
+            <th *ngIf="isCoordinador()">Responsable</th>
             <th>Canal</th>
             <th>Fecha</th>
             <th></th>
@@ -52,6 +65,8 @@
             </td>
             <td><app-estado-badge [estado]="s.estado"></app-estado-badge></td>
             <td><app-prioridad-badge [prioridad]="s.prioridad"></app-prioridad-badge></td>
+            <td *ngIf="isCoordinador()" class="cell-canal">{{ s.solicitanteNombre }}</td>
+            <td *ngIf="isCoordinador()" class="cell-canal">{{ s.usuarioAsignadoNombre || '—' }}</td>
             <td class="cell-canal">{{ s.canalOrigen }}</td>
             <td class="cell-date">{{ s.fechaCreacion | date:'dd/MM/yy' }}</td>
             <td>

@@ -45,6 +45,13 @@ export const routes: Routes = [
     ],
   },
 
+  {
+    path: 'perfil',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/perfil/perfil.component').then(m => m.PerfilComponent),
+  },
+
   // Wildcard: página no encontrada
   {
     path: '**',

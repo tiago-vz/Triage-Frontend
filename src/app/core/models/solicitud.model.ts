@@ -9,7 +9,10 @@ export interface SolicitudResponse {
   prioridad: NivelPrioridad | null;
   justificacionPrioridad: string | null;
   usuarioAsignadoId: number | null;
+  usuarioAsignadoNombre: string | null;
   solicitanteId: number;
+  solicitanteNombre: string;
+  solicitanteEmail: string;
   fechaCreacion: string;
 }
 
@@ -19,6 +22,7 @@ export interface HistorialResponse {
   estadoNuevo: EstadoSolicitud;
   fechaCambio: string;
   comentarios: string | null;
+  autorCambioNombre: string | null;
 }
 
 export interface PageResponse<T> {
@@ -57,6 +61,35 @@ export interface SolicitudFiltros {
   tipoId?: number | null;
   prioridad?: NivelPrioridad | null;
   responsableId?: number | null;
+  search?: string | null;
   page?: number;
   size?: number;
+}
+
+export interface EstadisticasResponse {
+  total: number;
+  registradas: number;
+  clasificadas: number;
+  enAtencion: number;
+  atendidas: number;
+  cerradas: number;
+}
+
+export interface ComentarioResponse {
+  id: number;
+  contenido: string;
+  autorNombre: string;
+  autorEmail: string;
+  fechaCreacion: string;
+}
+
+export interface ComentarioRequest {
+  contenido: string;
+}
+
+export interface IAResponse {
+  tipoSugeridoId: number | null;
+  tipoSugeridoNombre: string;
+  prioridadSugerida: NivelPrioridad;
+  confianza: number;
 }

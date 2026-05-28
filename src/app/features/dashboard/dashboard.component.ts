@@ -6,7 +6,7 @@ import { EstadoBadgeComponent } from '../../shared/components/estado-badge/estad
 import { PrioridadBadgeComponent } from '../../shared/components/prioridad-badge/prioridad-badge.component';
 import { SolicitudService } from '../../core/auth/solicitud.service';
 import { AuthService } from '../../core/auth/auth.service';
-import { SolicitudResponse, EstadoSolicitud, Rol } from '../../core/models';
+import { SolicitudResponse, EstadoSolicitud, EstadisticasResponse } from '../../core/models';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,12 +22,10 @@ export class DashboardComponent implements OnInit {
   readonly isCoordinador = this.auth.isCoordinador;
 
   solicitudes = signal<SolicitudResponse[]>([]);
+  stats = signal<EstadisticasResponse | null>(null);
   loading = signal(true);
 
-  // Métricas calculadas
-  readonly stats = {
-    registradas: 0, clasificadas: 0, enAtencion: 0, cerradas: 0
-  };
+  readonly EstadoSolicitud = EstadoSolicitud;
 
   constructor(
     private solicitudService: SolicitudService,
@@ -35,7 +33,14 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.solicitudService.listar({ size: 10 }).subscribe({
+    // Cargar estadísticas reales del backend
+    this.solicitudService.obtenerEstadisticas().subscribe({
+      next: (s) => this.stats.set(s),
+      error: () => {},
+    });
+
+    // Cargar solicitudes recientes
+    this.solicitudService.listar({ size: 8 }).subscribe({
       next: (page) => {
         this.solicitudes.set(page.content);
         this.loading.set(false);
@@ -43,10 +48,4 @@ export class DashboardComponent implements OnInit {
       error: () => this.loading.set(false),
     });
   }
-
-  countByEstado(estado: EstadoSolicitud): number {
-    return this.solicitudes().filter(s => s.estado === estado).length;
-  }
-
-  readonly EstadoSolicitud = EstadoSolicitud;
 }
